@@ -5,6 +5,7 @@ import SignUp from '../screens/SignUp';
 import Receipts from '../screens/Receipts';
 import ProfileForm from '../screens/ProfileForm';
 import EntryCreation from '../screens/EntryCreation';
+import PersonalInfo from '../screens/PersonalInfo';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { firebaseConfig } from './FirebaseSetup';
@@ -81,6 +82,11 @@ const AuthListening = () => {
                 <Stack.Screen
                     name='EntryCreation'
                     component={EntryCreation}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name='Profile'
+                    component={PersonalInfo}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>

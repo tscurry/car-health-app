@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, Text, StyleSheet, TouchableOpacity, View, Image, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, TouchableOpacity, View, Image, Alert } from 'react-native';
 import { Left, ListItem, Icon, Button, ActionSheet, Root, List, Body, Right } from 'native-base';
 import { SearchBar } from 'react-native-elements';
 import { firebase, db } from '../components/FirebaseSetup';
@@ -13,7 +13,6 @@ class Receipts extends React.Component {
     constructor(props) {
         super(props)
         this._isMounted = false;
-        this.isLoading = false;
         this.state = ({
             clicked: 'By Featured',
             receiptData: [],
@@ -41,59 +40,61 @@ class Receipts extends React.Component {
 
     componentDidMount = () => {
         this._isMounted = true;
-        this.isLoading = true;
-        this.databaseRead();
+        var userID;
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                userID = user.uid;
+                this.databaseRead(userID);
+            }
+        })
     }
 
     componentWillUnmount = () => {
         this._isMounted = false;
     }
 
-    databaseRead = async () => {
-        const uid = firebase.auth().currentUser.uid
-
+    databaseRead = async (uid) => {
         await db.collection('receipts').where('userID', '==', uid)
             .onSnapshot(querySnapshot => {
                 var receipts = [];
                 querySnapshot.forEach(doc => {
                     receipts.push(doc.data())
-                    this.isLoading = false;
                 })
                 this._isMounted && this.setState({ receiptData: receipts, data: receipts })
             })
     }
 
     alphabeticallyFilter = async () => {
-        await db.collection('receipts').orderBy('jobType')
+        const userID = firebase.auth().currentUser.uid
+        await db.collection('receipts').where('userID', '==', userID).orderBy('jobType')
             .onSnapshot((querySnapshot) => {
                 var rData = [];
                 querySnapshot.forEach(doc => {
                     rData.push(doc.data())
-                    this.isLoading = false;
                 })
                 this._isMounted && this.setState({ receiptData: rData, data: rData })
             })
     }
 
     earliestDateFilter = async () => {
-        await db.collection('receipts').orderBy('date')
+        const userID = firebase.auth().currentUser.uid
+        await db.collection('receipts').where('userID', '==', userID).orderBy('date')
             .onSnapshot((querySnapshot) => {
                 var rData = [];
                 querySnapshot.forEach(doc => {
                     rData.push(doc.data())
-                    this.isLoading = false;
                 })
                 this._isMounted && this.setState({ receiptData: rData, data: rData })
             })
     }
 
     latestDateFilter = async () => {
-        await db.collection('receipts').orderBy('date', 'desc')
+        const userID = firebase.auth().currentUser.uid
+        await db.collection('receipts').where('userID', '==', userID).orderBy('date', 'desc')
             .onSnapshot((querySnapshot) => {
                 var rData = [];
                 querySnapshot.forEach(doc => {
                     rData.push(doc.data())
-                    this.isLoading = false;
                 })
                 this._isMounted && this.setState({ receiptData: rData, data: rData })
             })
@@ -108,10 +109,11 @@ class Receipts extends React.Component {
     }
 
     deleteReceiptData = async (image) => {
-        await db.collection('receipts').where('imageURL', '==', image)
+        const userID = firebase.auth().currentUser.uid
+        await db.collection('receipts').where('imageURL', '==', image).where('userID', '==', userID)
             .onSnapshot(querySnapshot => {
                 querySnapshot.forEach(doc => {
-                    doc.ref.delete()
+                    this._isMounted && doc.ref.delete()
                     console.log('Delete successful')
                 })
             })
@@ -160,7 +162,7 @@ class Receipts extends React.Component {
         return (
             <Root>
                 <SafeAreaView style={{ backgroundColor: 'grey', flex: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', borderBottomColor: '#fff', borderBottomWidth: 1 }}>
                         <TouchableOpacity onPress={() => this.props.navigation.navigate('Home')}>
                             <Text style={{ color: '#fff', fontSize: 20, marginLeft: 15 }}>Back</Text>
                         </TouchableOpacity>
@@ -218,7 +220,7 @@ class Receipts extends React.Component {
                         data={this.state.receiptData}
                         keyExtractor={item => Math.floor(Math.random(item) * 9999999).toString(16)}
                         renderItem={({ item }) => this.renderPost(item)}
-                    // ListEmptyComponent={this.receiptCheck}
+                        ListEmptyComponent={this.receiptCheck}
                     />
                     <EntryCreation ref={(modal) => this.modalRef = modal}></EntryCreation>
                     <View style={styles.buttonPosition}>

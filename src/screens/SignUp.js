@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, SafeAreaView, TouchableOpacity, View, Alert } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import { firebase, db } from '../components/FirebaseSetup';
 import { Icon, Card, CardItem, Body } from 'native-base';

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, SafeAreaView } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { StackNavigation } from './src/components/index';
 
 export default class Main extends Component {

@@ -119,7 +119,7 @@ class EntryCreation extends React.Component {
         if (Constants.platform.ios) {
             const { status } = await Permissions.askAsync(Permissions.CAMERA);
             if (status === 'granted') {
-                this._takeImage();
+                this._isMounted && this._takeImage();
             }
 
             else {
@@ -132,7 +132,7 @@ class EntryCreation extends React.Component {
         if (Constants.platform.ios) {
             const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
             if (status === 'granted') {
-                this._pickImage();
+                this._isMounted && this._pickImage();
             }
             else {
                 Alert.alert('Sorry, we need camera roll permissions to make this work!');
@@ -145,7 +145,6 @@ class EntryCreation extends React.Component {
         const user = firebase.auth().currentUser.displayName;
 
         db.collection('receipts').add({
-            recipient: user,
             userID: uid,
             jobType: this.state.jobType,
             mechanic: this.state.mechanic,

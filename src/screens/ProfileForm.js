@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, SafeAreaView, StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { firebase, db } from '../components/FirebaseSetup';
 import { Card, CardItem, Body } from 'native-base';
 import { Input } from 'react-native-elements';
@@ -7,7 +7,8 @@ import { Input } from 'react-native-elements';
 class ProfileForm extends React.Component {
     constructor(props) {
         super(props);
-        this.isFormComplete = false;
+        this.isFirstFormComplete = false;
+        this.isSecondFormComplete = false;
         this._isMounted = false;
         this.state = ({
             addressDisappear: true,
@@ -68,6 +69,11 @@ class ProfileForm extends React.Component {
     }
 
     addressForm = () => {
+        const passFirst = (this.state.fullName && this.state.streetName && this.state.additionalAddress)
+        const passSecond = (this.state.city && this.state.postalCode.length === 6 && this.state.province)
+
+        this.isFirstFormComplete = passFirst && passSecond;
+
         return (
             <View>
                 <Card style={styles.card}>
@@ -117,8 +123,9 @@ class ProfileForm extends React.Component {
                 <TouchableOpacity
                     style={styles.buttonOne}
                     onPress={() => this.next()}
+                    disabled={!this.isFirstFormComplete}
                 >
-                    <Text style={styles.white}>Next</Text>
+                   <Text style={(!this.isFirstFormComplete) ? styles.lightGrey : styles.white}>Next</Text>
                 </TouchableOpacity>
             </View>
         )
@@ -128,7 +135,7 @@ class ProfileForm extends React.Component {
         const firstPass = (this.state.carType != '' && this.state.carYear.length === 4)
         const secondPass = (this.state.carManufacturer != '' && this.state.teleNumber.length === 10)
 
-        this.isFormComplete = firstPass && secondPass;
+        this.isSecondFormComplete = firstPass && secondPass;
 
         return (
             <View>
@@ -169,9 +176,9 @@ class ProfileForm extends React.Component {
                 <TouchableOpacity
                     style={styles.buttonOne}
                     onPress={() => this.databaseWrite()}
-                    disabled={!this.isFormComplete}
+                    disabled={!this.isSecondFormComplete}
                 >
-                    <Text style={(!this.isFormComplete) ? styles.lightGrey : styles.white}>Finish</Text>
+                    <Text style={(!this.isSecondFormComplete) ? styles.lightGrey : styles.white}>Finish</Text>
                 </TouchableOpacity>
             </View>
         )
